@@ -1,46 +1,87 @@
 import { IProduct } from "../interfaces";
-import Button from "./ui/Button";
+import { numberWithCommas, txtSlicer } from "../utils/index";
+import CircleColor from "./CircleColor";
 import Image from "./Image";
-import { textSlicer } from "../utils";
+import Button from "./ui/Button";
 
 interface IProps {
   product: IProduct;
+  setProductToEdit: (product: IProduct) => void;
+  openEditModal: () => void;
+  idx: number;
+  setProductToEditIdx: (value: number) => void;
+  openConfirmModal: () => void;
 }
 
-const ProductCard = ({ product }: IProps) => {
-  const { title, imageURL, description } = product;
-  return (
-    <div className="border rounded-md flex flex-col p-2 max-w-sm   mx-auto">
-      <Image
-        className="rounded-md mb-2 lg:object-cover w-full h-52"
-        alt={title}
-        imageURL={imageURL}
-      />
-      <h3>{title}</h3>
-      <p>{textSlicer(description)}</p>
-      <div className="flex items-center my-4 space-x-2">
-        <span className="w-5 h-5 rounded-full bg-indigo-400 cursor-pointer"></span>
-        <span className="w-5 h-5 rounded-full bg-yellow-400 cursor-pointer"></span>
-        <span className="w-5 h-5 rounded-full bg-red-400 cursor-pointer"></span>
-      </div>
-      <div className="flex justify-between items-center">
-        <span>$500,000</span>
+const ProductCard = ({
+  product,
+  setProductToEdit,
+  openEditModal,
+  idx,
+  setProductToEditIdx,
+  openConfirmModal,
+}: IProps) => {
+  const { title, description, imageURL, price, colors, category } = product;
 
-        <Image
-          className="w-10 h-10 rounded-full object-cover"
-          alt="Ferrari F8"
-          imageURL="https://images.unsplash.com/photo-1592198084033-aade902d1aae?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-        />
+  /* ------- RENDER -------  */
+  const renderProductColors = colors.map((color) => (
+    <CircleColor key={color} color={color} />
+  ));
+
+  /* ------- HANDLER -------  */
+  const onEdit = () => {
+    setProductToEdit(product);
+    openEditModal();
+    setProductToEditIdx(idx);
+  };
+
+  const onRemove = () => {
+    setProductToEdit(product);
+    openConfirmModal();
+  };
+
+  return (
+    <div className="max-w-sm md:max-w-lg mx-auto md:mx-0 border rounded-md p-2 flex flex-col space-y-3">
+      <Image
+        imageURL={imageURL}
+        alt={"Product Name"}
+        className="rounded-md h-52 w-full lg:object-cover"
+      />
+
+      <h3 className="text-lg font-semibold">{txtSlicer(title, 25)}</h3>
+      <p className="text-sm text-gray-500 break-words">
+        {txtSlicer(description)}
+      </p>
+
+      <div className="flex items-center flex-wrap space-x-1">
+        {!colors.length ? (
+          <p className="min-h-[20px]">Not available colors!</p>
+        ) : (
+          renderProductColors
+        )}
       </div>
-      <div className="flex justify-between items-center mt-5 space-x-2 ">
-        <Button
-          width="w-full"
-          className="bg-red-400 "
-          onClick={() => console.log("clicked")}
-        >
-          EDIT
+
+      <div className="flex items-center justify-between">
+        <span className="text-lg text-indigo-600 font-semibold">
+          ${numberWithCommas(price)}
+        </span>
+        <div className="flex items-center space-x-2">
+          <span className="text-xs font-semibold">{category.name}</span>
+          <Image
+            imageURL={category.imageURL}
+            alt={category.name}
+            className="w-10 h-10 rounded-full object-bottom"
+          />
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between space-x-2">
+        <Button className="bg-indigo-700 hover:bg-indigo-800" onClick={onEdit}>
+          Edit
         </Button>
-        <Button className="bg-indigo-400">DELETE</Button>
+        <Button className="bg-[#c2344d] hover:bg-red-800" onClick={onRemove}>
+          Remove
+        </Button>
       </div>
     </div>
   );
